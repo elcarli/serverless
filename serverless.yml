@@ -1,0 +1,53 @@
+service: app
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  addUser:
+    handler: src/users/addUser.addUser
+    events:
+      - http:
+          path: /users
+          method: POST
+  getUsers:
+    handler: src/users/getUsers.getUsers
+    events:
+      - http:
+          path: /users
+          method: GET
+  editUser:
+    handler: src/users/editUser.editUser
+    events:
+      - http:
+          path: /users/{id}
+          method: PUT
+  addProduct:
+    handler: src/products/addProduct.addProduct
+    events:
+      - http:
+          path: /products
+          method: POST
+  addOrder:
+    handler: src/orders/addOrder.addOrder
+    events:
+      - http:
+          path: /users/{id}/orders
+          method: POST
+  transferBalance:
+      handler: src/users/transferBalance.transferBalance
+      events:
+        - http:
+            path: /users/{sourceUserId}/transfer/{targetUserId}
+            method: POST
+  getProducts:
+      handler: src/products/getProducts.getProducts
+      events:
+        - http:
+            path: /products
+            method: GET
+plugins:
+  - serverless-offline

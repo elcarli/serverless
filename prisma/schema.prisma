@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     Int           @id @default(autoincrement())
+  name                   String
+  email                  String        @unique
+  balance                Decimal       @db.Money
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime?
+  orders                 Order[]
+  sourceUserTransactions Transaction[] @relation("sourceUserTransactions")
+  targetUserTransactions Transaction[] @relation("targetUserTransactions")
+}
+
+model Product {
+  id        Int       @id @default(autoincrement())
+  name      String
+  price     Decimal   @db.Money
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  details   Detail[]
+}
+
+model Detail {
+  id          Int       @id @default(autoincrement())
+  order       Order     @relation(fields: [orderId], references: [id])
+  orderId     Int
+  product     Product   @relation(fields: [productId], references: [id])
+  productId   Int
+  priceOnDate Decimal   @db.Money
+  quantity    Int
+  subtotal    Decimal   @db.Money
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime?
+}
+
+model Order {
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+  details    Detail[]
+  isApproved Boolean   @default(false)
+}
+
+model Transaction {
+  id           Int       @id @default(autoincrement())
+  sourceUser   User      @relation(name: "sourceUserTransactions", fields: [sourceUserId], references: [id])
+  sourceUserId Int
+  targetUser    User      @relation(name: "targetUserTransactions", fields: [targetUserId], references: [id])
+  targetUserId  Int
+  balance      Decimal   @db.Money
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime?
+}
